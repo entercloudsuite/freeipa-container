@@ -2,11 +2,14 @@
 FROM centos:centos7
 
 MAINTAINER Jan Pazdziora
+
+ENV FREEIPA_VERSION=4.5.0-22.el7.centos
+
 # Moving groupadd before freeipa installation to ensure uid and guid will be same
 RUN groupadd -g 288 kdcproxy ; useradd -u 288 -g 288 -c 'IPA KDC Proxy User' -d '/var/lib/kdcproxy' -s '/sbin/nologin' kdcproxy
 RUN groupadd -g 289 ipaapi; useradd -u 289 -g 289 -c 'IPA Framework User' -d / -s '/sbin/nologin' ipaapi
 
-RUN yum install -y ipa-server ipa-server-dns ipa-server-trust-ad && yum clean all
+RUN yum install -y ipa-server-${FREEIPA_VERSION} ipa-server-dns-${FREEIPA_VERSION} ipa-server-trust-ad-${FREEIPA_VERSION} && yum clean all
 
 # Workaround 1364139
 RUN sed -i '/installutils.verify_fqdn(config.master_host_name, options.no_host_dns)/s/)/, local_hostname=False)/' /usr/lib/python2.7/site-packages/ipaserver/install/server/replicainstall.py && python -m compileall /usr/lib/python2.7/site-packages/ipaserver/install/server/replicainstall.py
